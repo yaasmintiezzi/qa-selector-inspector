@@ -4,125 +4,786 @@
  * Copyright (c) 2026 Yasmin Tiezzi
  * Licensed under the MIT License (see LICENSE file)
  */
-(function(){
-if(window.__sp){window.__sp.off();return;}
-var on=true,cur=null,host=document.createElement("div"),hl=document.createElement("div"),sl=document.createElement("div");
-host.style.cssText="all:initial;position:fixed;z-index:2147483647;right:12px;bottom:12px;";
-var sh=host.attachShadow({mode:"open"});
-hl.style.cssText="position:fixed;z-index:2147483646;pointer-events:none;border:2px solid #2f5fd0;background:rgba(47,95,208,.15);display:none;";
-sl.style.cssText="position:fixed;z-index:2147483646;pointer-events:none;border:2px dashed #1a9f5b;display:none;";
-document.documentElement.appendChild(hl);document.documentElement.appendChild(sl);document.documentElement.appendChild(host);
-var st=document.createElement("style");
-st.textContent=".p{width:400px;max-width:92vw;max-height:60vh;overflow:auto;background:#1e1e24;color:#eee;font:12px/1.4 system-ui,sans-serif;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.45);padding:8px} .x{background:#c62828} .t{display:flex;gap:6px;align-items:center;margin-bottom:6px} .t b{flex:1;font:600 12px ui-monospace,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} button{font:inherit;background:#33333b;color:#eee;border:0;border-radius:6px;padding:3px 8px;cursor:pointer} .r{display:grid;grid-template-columns:34px 1fr auto;gap:6px;align-items:center;padding:3px 0;border-top:1px solid #33333b} code{display:block;overflow-x:auto;white-space:nowrap;background:#2a2a32;padding:3px 6px;border-radius:5px;font:12px ui-monospace,monospace;cursor:pointer} .n{text-align:center;border-radius:5px;padding:1px 0;font-weight:600} .o{background:#1a7f4b} .w{background:#b36b00} .m{color:#9a9aa2;padding:6px 0} .k{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px} .b{background:#2a2a32;border-radius:6px;padding:4px 6px;margin:0 0 6px;font:12px ui-monospace,monospace;white-space:pre;overflow-x:auto;cursor:pointer} .h{font-weight:600;padding:4px 0} .k button.a{background:#2f5fd0} input{width:100%;margin-bottom:6px;background:#2a2a32;color:#eee;border:1px solid #33333b;border-radius:6px;padding:4px 8px;font:12px ui-monospace,monospace;box-sizing:border-box}";
-sh.appendChild(st);
-var pn=document.createElement("div");pn.className="p";sh.appendChild(pn);
-function E(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
-function q(v){return '"'+v.replace(/\\/g,"\\\\").replace(/"/g,'\\"')+'"';}
-function xq(v){if(v.indexOf("'")<0)return "'"+v+"'";if(v.indexOf('"')<0)return '"'+v+'"';return "concat("+v.split("'").map(function(p){return "'"+p+"'";}).join(',"\'",')+")";}
-function esc(s){return window.CSS&&CSS.escape?CSS.escape(s):s.replace(/([^\w-])/g,"\\$1");}
-function cnt(k,s){try{if(k==="id")s="#"+esc(s),k="css";if(k==="name")s="[name="+q(s)+"]",k="css";if(k==="css")return document.querySelectorAll(s).length;return document.evaluate(s,document,null,7,null).snapshotLength;}catch(e){return -1;}}
-function pos(d,el){if(!el){d.style.display="none";return;}var r=el.getBoundingClientRect();d.style.display="block";d.style.left=r.left+"px";d.style.top=r.top+"px";d.style.width=r.width+"px";d.style.height=r.height+"px";}
-function path(el){var p=[];while(el&&el.nodeType===1&&el!==document.documentElement){var t=el.tagName.toLowerCase();if(el.id&&document.querySelectorAll("#"+esc(el.id)).length===1){p.unshift("#"+esc(el.id));break;}var i=1,s=el;while((s=s.previousElementSibling)){if(s.tagName===el.tagName)i++;}p.unshift(t+":nth-of-type("+i+")");el=el.parentElement;}return p.join(" > ");}
-function uq(s){return cnt("css",s)===1;}
-function ab(el){var t=el.tagName.toLowerCase(),o="";["name","formcontrolname","placeholder","data-testid","data-test","data-cy","aria-label","type","role"].forEach(function(a){var v=el.getAttribute(a);if(v&&v.length<100)o+="["+a+"="+q(v)+"]";});return t+o;}
-function sc(el){var p=el.parentElement,n=0;while(p&&n<8&&p!==document.body){var i=p.id?"#"+esc(p.id):"";if(!i){["formcontrolname","data-testid","data-test","data-cy","name"].some(function(x){var v=p.getAttribute(x);if(v){i=p.tagName.toLowerCase()+"["+x+"="+q(v)+"]";return true;}return false;});}
-if(i&&uq(i)){var c=i+" "+ab(el);if(cnt("css",c)===1)return c;}
-p=p.parentElement;n++;}return null;}
-function ix(k,s,el){try{if(k==="id")s="#"+esc(s),k="css";if(k==="name")s="[name="+q(s)+"]",k="css";if(k==="css")return [].indexOf.call(document.querySelectorAll(s),el);var r=document.evaluate(s,document,null,7,null);for(var i=0;i<r.snapshotLength;i++)if(r.snapshotItem(i)===el)return i;return -1;}catch(e){return -1;}}
-function sels(el){
-var t=el.tagName.toLowerCase(),r=[];
-var pri=["id","name","formcontrolname","placeholder","data-testid","data-test","data-cy","aria-label","type","role","title","href"];
-var at=[].slice.call(el.attributes).filter(function(x){return x.name!=="class"&&x.name!=="style"&&x.name.indexOf("ng-reflect")!==0&&x.value.trim()&&x.value.length<150;});
-at.sort(function(a,b){var i=pri.indexOf(a.name),j=pri.indexOf(b.name);return (i<0?99:i)-(j<0?99:j);});
-at.forEach(function(x){var n=x.name,v=x.value;
-if(n==="id"){r.push(["id","css","#"+esc(v)]);r.push(["id","xpath","//*[@id="+xq(v)+"]"]);r.push(["id","id",v]);}
-else{r.push([n,"css",t+"["+n+"="+q(v)+"]"]);r.push([n,"xpath","//"+t+"[@"+n+"="+xq(v)+"]"]);if(n==="name")r.push(["name","name",v]);}});
-var cl=(el.getAttribute("class")||"").split(/\s+/).filter(function(c){return c&&!/^(ng-(untouched|touched|pristine|dirty|valid|invalid|pending|star-inserted)|cdk-.*focus.*|mat-focused|mat-mdc-form-field-focus.*)$/.test(c);});
-if(cl.length){cl.forEach(function(c){r.push(["class","css",t+"."+esc(c)]);});if(cl.length>1)r.push(["class","css",t+"."+cl.map(esc).join(".")]);}
-var tx="";for(var i=0;i<el.childNodes.length;i++)if(el.childNodes[i].nodeType===3)tx+=el.childNodes[i].nodeValue;
-tx=tx.replace(/\s+/g," ").trim();
-if(tx&&tx.length<80)r.push(["texto","xpath","//"+t+"[normalize-space()="+xq(tx)+"]"]);
-var cb2=ab(el);if((cb2.match(/\[/g)||[]).length>1&&cnt("css",cb2)===1)r.push(["combinado","css",cb2]);var sp=sc(el);if(sp)r.push(["escopo","css",sp]);r.push(["caminho","css",path(el)]);
-return r;}
-function cp(t,btn){function ok(){btn.textContent="✔";setTimeout(function(){btn.textContent="Copiar";},900);}
-function fb(){var a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");}catch(e){}a.remove();ok();}
-try{navigator.clipboard.writeText(t).then(ok,fb);}catch(e){fb();}}
-function bar(title){pn.textContent="";
-var tp=E("div","t"),b=E("b",0,title),bp=E("button",0,"▲ pai"),bz=E("button",0,on?"Pausar":"Retomar"),bx=E("button",0,"✕");
-bp.onclick=function(){if(cur&&cur.parentElement&&cur.parentElement!==document.documentElement)show(cur.parentElement);};
-bz.onclick=function(){on=!on;bz.textContent=on?"Pausar":"Retomar";if(!on)hl.style.display="none";};
-bx.onclick=off;
-tp.appendChild(b);tp.appendChild(bp);tp.appendChild(bz);tp.appendChild(bx);pn.appendChild(tp);}
-var lc=null,uo=false,fw="sel",FW=[["sel","Seletores"],["cy","Cypress"],["pw","Playwright"],["jv","Selenium Java"],["py","Selenium Python"]],NT={sel:"Verde = único na página · laranja 4× = 4 elementos têm esse seletor (passe o mouse para ver o índice). Nas abas de framework o índice já vem no código.",cy:"Se o seletor repete, o .eq(n) já vem no código. XPath exige o plugin cypress-xpath.",pw:"Se o seletor repete, o .nth(n) já vem no código.",jv:"Se o seletor repete, o findElements(...).get(n) já vem no código.",py:"Se o seletor repete, o find_elements(...)[n] já vem no código."};
-function js(v){return "'"+v.replace(/\\/g,"\\\\").replace(/'/g,"\\'")+"'";}
-function nm(el){var t=el.tagName.toLowerCase(),ty=(el.getAttribute("type")||"").toLowerCase(),b=el.id||el.getAttribute("name")||el.getAttribute("formcontrolname")||el.getAttribute("data-testid")||el.getAttribute("data-test")||el.getAttribute("data-cy")||el.getAttribute("aria-label")||el.getAttribute("placeholder")||(el.textContent||"").trim().slice(0,25)||t;
-b=b.normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-var w=b.replace(/[^A-Za-z0-9]+/g," ").trim().split(" ").filter(Boolean),s=w.map(function(x,i){return (i?x.charAt(0).toUpperCase():x.charAt(0).toLowerCase())+x.slice(1);}).join("");
-if(!s||/^\d/.test(s))s="el"+s;
-var sf={input:ty==="checkbox"?"Checkbox":ty==="radio"?"Radio":ty==="submit"||ty==="button"?"Button":"Input",button:"Button",a:"Link",select:"Select",textarea:"Textarea"}[t]||"";
-if(sf&&s.toLowerCase().slice(-sf.length)!==sf.toLowerCase())s+=sf;
-return s;}
-function wrap(f,s,n,i,c){var k=s[1],v=s[2],M=c>1&&i>=0;
-if(f==="sel")return v;
-if(f==="cy")return (k==="xpath"?"cy.xpath("+js(v)+")":"cy.get("+js(v)+")")+(M?".eq("+i+")":"")+";";
-if(f==="pw")return "this.page.locator("+js(k==="xpath"?"xpath="+v:v)+")"+(M?".nth("+i+")":"")+";";
-if(f==="jv"){var m={css:"cssSelector",xpath:"xpath",id:"id",name:"name"};return M?"driver.findElements(By."+m[k]+"("+q(v)+")).get("+i+");":"driver.findElement(By."+m[k]+"("+q(v)+"));";}
-var m2={css:"CSS_SELECTOR",xpath:"XPATH",id:"ID",name:"NAME"};return M?"driver.find_elements(By."+m2[k]+", "+q(v)+")["+i+"]":"driver.find_element(By."+m2[k]+", "+q(v)+")";}
-function cbo(el){return el.closest("ng-select,mat-select,select")||el.closest('[role="combobox"],[aria-haspopup="listbox"]');}
-function opn(el){return el.closest('.ng-option,mat-option,option,[role="option"]');}
-function bs(el){var r=sels(el).filter(function(s){return s[1]==="css"&&s[0]!=="caminho"&&cnt("css",s[2])===1;});return r.length?r[0][2]:path(el);}
-function lbl(el){var t=el.getAttribute("aria-label")||"",l,p=el,n=0;
-if(!t&&el.id){l=document.querySelector("label[for="+q(el.id)+"]");if(l)t=l.textContent;}
-while(!t&&p&&n<4){var ls=p.querySelectorAll("label,mat-label");if(ls.length===1)t=ls[0].textContent;p=p.parentElement;n++;}
-if(!t){l=el.querySelector(".ng-placeholder,[placeholder]");t=l?(l.textContent||l.getAttribute("placeholder")||""):(el.getAttribute("placeholder")||"");}
-return t.replace(/\s+/g," ").trim().slice(0,40);}
-function lk(x){var t=x.tagName.toLowerCase();
-if(t==="select"||t==="option")return {n:1};
-if(t==="ng-select"||x.closest("ng-select")||x.matches(".ng-option"))return {o:".ng-dropdown-panel .ng-option",x:function(s){return "//div[contains(@class,'ng-option')][contains(normalize-space(.),"+xq(s)+")]";}};
-if(t==="mat-select"||t==="mat-option")return {o:"mat-option",x:function(s){return "//mat-option[contains(normalize-space(.),"+xq(s)+")]";}};
-return {o:'[role="option"]',x:function(s){return "//*[@role='option'][contains(normalize-space(.),"+xq(s)+")]";}};}
-var F={cy:{o:function(s){return "cy.get("+js(s)+").click();";},f:function(s){return "cy.get("+js(s)+").first().click();";},t:function(s,x,t){return "cy.contains("+js(s)+", "+js(t)+").click();";},nt:function(s,t){return "cy.get("+js(s)+").select("+js(t)+");";},ni:function(s){return "cy.get("+js(s)+").select(0);";}},
-pw:{o:function(s){return "await this.page.locator("+js(s)+").click();";},f:function(s){return "await this.page.locator("+js(s)+").first().click();";},t:function(s,x,t){return "await this.page.locator("+js(s)+", { hasText: "+js(t)+" }).click();";},nt:function(s,t){return "await this.page.locator("+js(s)+").selectOption({ label: "+js(t)+" });";},ni:function(s){return "await this.page.locator("+js(s)+").selectOption({ index: 0 });";}},
-jv:{o:function(s){return "driver.findElement(By.cssSelector("+q(s)+")).click();";},f:function(s){return "driver.findElements(By.cssSelector("+q(s)+")).get(0).click();";},t:function(s,x,t){return "driver.findElement(By.xpath("+q(x)+")).click();";},nt:function(s,t){return "new Select(driver.findElement(By.cssSelector("+q(s)+"))).selectByVisibleText("+q(t)+");";},ni:function(s){return "new Select(driver.findElement(By.cssSelector("+q(s)+"))).selectByIndex(0);";}},
-py:{o:function(s){return "driver.find_element(By.CSS_SELECTOR, "+q(s)+").click()";},f:function(s){return "driver.find_elements(By.CSS_SELECTOR, "+q(s)+")[0].click()";},t:function(s,x,t){return "driver.find_element(By.XPATH, "+q(x)+").click()";},nt:function(s,t){return "Select(driver.find_element(By.CSS_SELECTOR, "+q(s)+")).select_by_visible_text("+q(t)+")";},ni:function(s){return "Select(driver.find_element(By.CSS_SELECTOR, "+q(s)+")).select_by_index(0)";}}};
-function seq(f,cs,k,tx){var G=F[f],r=[];
-if(k.n){if(cs){r.push(["Selecionar por texto",[G.nt(cs,tx)]]);r.push(["Selecionar pelo índice",[G.ni(cs)]]);}return r;}
-var op=cs?[G.o(cs)]:[];
-r.push(["Abrir e escolher a primeira",op.concat([G.f(k.o)])]);
-r.push(["Abrir e escolher por texto",op.concat([G.t(k.o,k.x(tx),tx)])]);
-return r;}
-function show(el){cur=el;pos(sl,el);bar("<"+el.tagName.toLowerCase()+">"+(el.id?" #"+el.id:""));
-var cr=sels(el).map(function(s,j){return [s,cnt(s[1],s[2]),ix(s[1],s[2],el),j];}).sort(function(a,b){return (a[1]===1?0:1)-(b[1]===1?0:1)||a[3]-b[3];}),kb=E("div","k"),lw=E("div"),rw=E("div"),nt=E("div","m");
-var co=cbo(el),po=opn(el),li=null,tx="Texto";
-if(po){tx=(po.textContent||"").replace(/\s+/g," ").trim().slice(0,60)||"Texto";li=co?(lc&&lc.el===co?lc:{el:co}):lc;}
-else if(co){lc={el:co};li=lc;}
-if(li&&!li.cs){li.cs=bs(li.el);li.lb=lbl(li.el);}
-var kk=(li||po)?lk(li?li.el:po):null;
-if(co&&!po&&kk){var o1=kk.n?(co.options&&co.options[co.options.length>1?1:0]):document.querySelector(kk.o);if(o1)tx=((o1.text||o1.textContent)||"").replace(/\s+/g," ").trim().slice(0,60)||tx;}
-function drawL(){var bl;lw.appendChild(E("div","h","Campo: "+((li&&li.lb)||"(sem rótulo)")+(po?" · opção: "+tx:"")));
-if(fw==="sel"){bl=[["Campo (abrir)",[li?li.cs:"(clique antes no campo)"]]];if(!kk.n){bl.push(["Opções",[kk.o]]);bl.push(["Opção por texto (XPath)",[kk.x(tx)]]);}}
-else bl=seq(fw,li?li.cs:"",kk,tx);
-bl.forEach(function(b){var h=E("div","t"),bb=E("button",0,"Copiar"),t=b[1].join("\n");h.appendChild(E("b",0,b[0]));h.appendChild(bb);bb.onclick=function(){cp(t,bb);};lw.appendChild(h);var d=E("div","b",t);d.onclick=bb.onclick;lw.appendChild(d);});}
-function draw(){rw.textContent="";lw.textContent="";nt.textContent=NT[fw];if(li||po)drawL();
-cr.forEach(function(x){var s=x[0],n=x[1],i=x[2];if(fw!=="jv"&&fw!=="py"&&s[1]!=="css"&&s[1]!=="xpath")return;if(uo&&n!==1)return;
-var txt=wrap(fw,s,"",i,n),r=E("div","r"),cls=n===1?"o":n===0?"x":"w",nb=E("div","n "+cls,n===0?"X":n<0?"?":n>1?n+"x":String(n)),cd=E("code",0,txt),cb=E("button",0,"Copiar");
-nb.title=s[0]+" · "+s[1]+" · "+(n===1?"Seletor único na página":n>1?n+" elementos na página; o seu é o de índice "+i+" (eq("+i+"))":"não identificado, verificar dentro do iframe ou Shadow DOM");cd.title=nb.title;
-cd.onclick=function(){cp(txt,cb);};cb.onclick=function(){cp(txt,cb);};
-r.appendChild(nb);r.appendChild(cd);r.appendChild(cb);rw.appendChild(r);});
-if(!rw.children.length)rw.appendChild(E("div","m","Nenhum seletor único para este elemento. Desative “Só únicos”."));}
-FW.forEach(function(x){var b=E("button",x[0]===fw?"a":0,x[1]);b.t=1;b.onclick=function(){fw=x[0];[].forEach.call(kb.children,function(c){if(c.t)c.className="";});b.className="a";draw();};kb.appendChild(b);});
-var ub=E("button",uo?"a":0,"Só únicos");ub.onclick=function(){uo=!uo;ub.className=uo?"a":"";draw();};kb.appendChild(ub);
-pn.appendChild(kb);pn.appendChild(lw);pn.appendChild(rw);pn.appendChild(nt);draw();}
-function inH(e){var p=e.composedPath?e.composedPath():[];return p.indexOf(host)>=0;}
-function mv(e){if(!on||inH(e))return;pos(hl,e.target);}
-function bl(e){if(!on||inH(e))return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();}
-function ck(e){if(!on||inH(e))return;bl(e);show(e.target);}
-function kd(e){if(e.key==="Escape")off();}
-function rs(){pos(sl,cur);}
-var ev=[["mousemove",mv],["click",ck],["mousedown",bl],["mouseup",bl],["pointerdown",bl],["pointerup",bl],["dblclick",bl],["keydown",kd],["scroll",rs]];
-ev.forEach(function(x){document.addEventListener(x[0],x[1],true);});
-function off(){ev.forEach(function(x){document.removeEventListener(x[0],x[1],true);});host.remove();hl.remove();sl.remove();delete window.__sp;}
-window.__sp={off:off};
-bar("Seletor");
-pn.appendChild(E("div","m","Clique em um elemento da página. Esc fecha."));
+(function () {
+  if (window.__sp) {
+    window.__sp.off();
+    return;
+  }
+  var on = true,
+    cur = null,
+    host = document.createElement("div"),
+    hl = document.createElement("div"),
+    sl = document.createElement("div");
+  host.style.cssText =
+    "all:initial;position:fixed;z-index:2147483647;right:12px;bottom:12px;";
+  var sh = host.attachShadow({ mode: "open" });
+  hl.style.cssText =
+    "position:fixed;z-index:2147483646;pointer-events:none;border:2px solid #2f5fd0;background:rgba(47,95,208,.15);display:none;";
+  sl.style.cssText =
+    "position:fixed;z-index:2147483646;pointer-events:none;border:2px dashed #1a9f5b;display:none;";
+  document.documentElement.appendChild(hl);
+  document.documentElement.appendChild(sl);
+  document.documentElement.appendChild(host);
+  var st = document.createElement("style");
+  st.textContent =
+    ".p{width:400px;max-width:92vw;max-height:60vh;overflow:auto;background:#1e1e24;color:#eee;font:12px/1.4 system-ui,sans-serif;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.45);padding:8px} .x{background:#c62828} .t{display:flex;gap:6px;align-items:center;margin-bottom:6px} .t b{flex:1;font:600 12px ui-monospace,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} button{font:inherit;background:#33333b;color:#eee;border:0;border-radius:6px;padding:3px 8px;cursor:pointer} .r{display:grid;grid-template-columns:34px 1fr auto;gap:6px;align-items:center;padding:3px 0;border-top:1px solid #33333b} code{display:block;overflow-x:auto;white-space:nowrap;background:#2a2a32;padding:3px 6px;border-radius:5px;font:12px ui-monospace,monospace;cursor:pointer} .n{text-align:center;border-radius:5px;padding:1px 0;font-weight:600} .o{background:#1a7f4b} .w{background:#b36b00} .m{color:#9a9aa2;padding:6px 0} .k{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px} .b{background:#2a2a32;border-radius:6px;padding:4px 6px;margin:0 0 6px;font:12px ui-monospace,monospace;white-space:pre;overflow-x:auto;cursor:pointer} .h{font-weight:600;padding:4px 0} .k button.a{background:#2f5fd0} input{width:100%;margin-bottom:6px;background:#2a2a32;color:#eee;border:1px solid #33333b;border-radius:6px;padding:4px 8px;font:12px ui-monospace,monospace;box-sizing:border-box}";
+  sh.appendChild(st);
+  var pn = document.createElement("div");
+  pn.className = "p";
+  sh.appendChild(pn);
+  function E(t, c, x) {
+    var e = document.createElement(t);
+    if (c) e.className = c;
+    if (x != null) e.textContent = x;
+    return e;
+  }
+  function q(v) {
+    return '"' + v.replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"';
+  }
+  function xq(v) {
+    if (v.indexOf("'") < 0) return "'" + v + "'";
+    if (v.indexOf('"') < 0) return '"' + v + '"';
+    return (
+      "concat(" +
+      v
+        .split("'")
+        .map(function (p) {
+          return "'" + p + "'";
+        })
+        .join(',"\'",') +
+      ")"
+    );
+  }
+  function esc(s) {
+    return window.CSS && CSS.escape
+      ? CSS.escape(s)
+      : s.replace(/([^\w-])/g, "\\$1");
+  }
+  function cnt(k, s) {
+    try {
+      if (k === "id") ((s = "#" + esc(s)), (k = "css"));
+      if (k === "name") ((s = "[name=" + q(s) + "]"), (k = "css"));
+      if (k === "css") return document.querySelectorAll(s).length;
+      return document.evaluate(s, document, null, 7, null).snapshotLength;
+    } catch (e) {
+      return -1;
+    }
+  }
+  function pos(d, el) {
+    if (!el) {
+      d.style.display = "none";
+      return;
+    }
+    var r = el.getBoundingClientRect();
+    d.style.display = "block";
+    d.style.left = r.left + "px";
+    d.style.top = r.top + "px";
+    d.style.width = r.width + "px";
+    d.style.height = r.height + "px";
+  }
+  function path(el) {
+    var p = [];
+    while (el && el.nodeType === 1 && el !== document.documentElement) {
+      var t = el.tagName.toLowerCase();
+      if (el.id && document.querySelectorAll("#" + esc(el.id)).length === 1) {
+        p.unshift("#" + esc(el.id));
+        break;
+      }
+      var i = 1,
+        s = el;
+      while ((s = s.previousElementSibling)) {
+        if (s.tagName === el.tagName) i++;
+      }
+      p.unshift(t + ":nth-of-type(" + i + ")");
+      el = el.parentElement;
+    }
+    return p.join(" > ");
+  }
+  function uq(s) {
+    return cnt("css", s) === 1;
+  }
+  function ab(el) {
+    var t = el.tagName.toLowerCase(),
+      o = "";
+    [
+      "name",
+      "formcontrolname",
+      "placeholder",
+      "data-testid",
+      "data-test",
+      "data-cy",
+      "aria-label",
+      "type",
+      "role",
+    ].forEach(function (a) {
+      var v = el.getAttribute(a);
+      if (v && v.length < 100) o += "[" + a + "=" + q(v) + "]";
+    });
+    return t + o;
+  }
+  function sc(el) {
+    var p = el.parentElement,
+      n = 0;
+    while (p && n < 8 && p !== document.body) {
+      var i = p.id ? "#" + esc(p.id) : "";
+      if (!i) {
+        ["formcontrolname", "data-testid", "data-test", "data-cy", "name"].some(
+          function (x) {
+            var v = p.getAttribute(x);
+            if (v) {
+              i = p.tagName.toLowerCase() + "[" + x + "=" + q(v) + "]";
+              return true;
+            }
+            return false;
+          },
+        );
+      }
+      if (i && uq(i)) {
+        var c = i + " " + ab(el);
+        if (cnt("css", c) === 1) return c;
+      }
+      p = p.parentElement;
+      n++;
+    }
+    return null;
+  }
+  function ix(k, s, el) {
+    try {
+      if (k === "id") ((s = "#" + esc(s)), (k = "css"));
+      if (k === "name") ((s = "[name=" + q(s) + "]"), (k = "css"));
+      if (k === "css") return [].indexOf.call(document.querySelectorAll(s), el);
+      var r = document.evaluate(s, document, null, 7, null);
+      for (var i = 0; i < r.snapshotLength; i++)
+        if (r.snapshotItem(i) === el) return i;
+      return -1;
+    } catch (e) {
+      return -1;
+    }
+  }
+  function sels(el) {
+    var t = el.tagName.toLowerCase(),
+      r = [];
+    var pri = [
+      "id",
+      "name",
+      "formcontrolname",
+      "placeholder",
+      "data-testid",
+      "data-test",
+      "data-cy",
+      "aria-label",
+      "type",
+      "role",
+      "title",
+      "href",
+    ];
+    var at = [].slice.call(el.attributes).filter(function (x) {
+      return (
+        x.name !== "class" &&
+        x.name !== "style" &&
+        x.name.indexOf("ng-reflect") !== 0 &&
+        x.value.trim() &&
+        x.value.length < 150
+      );
+    });
+    at.sort(function (a, b) {
+      var i = pri.indexOf(a.name),
+        j = pri.indexOf(b.name);
+      return (i < 0 ? 99 : i) - (j < 0 ? 99 : j);
+    });
+    at.forEach(function (x) {
+      var n = x.name,
+        v = x.value;
+      if (n === "id") {
+        r.push(["id", "css", "#" + esc(v)]);
+        r.push(["id", "xpath", "//*[@id=" + xq(v) + "]"]);
+        r.push(["id", "id", v]);
+      } else {
+        r.push([n, "css", t + "[" + n + "=" + q(v) + "]"]);
+        r.push([n, "xpath", "//" + t + "[@" + n + "=" + xq(v) + "]"]);
+        if (n === "name") r.push(["name", "name", v]);
+      }
+    });
+    var cl = (el.getAttribute("class") || "").split(/\s+/).filter(function (c) {
+      return (
+        c &&
+        !/^(ng-(untouched|touched|pristine|dirty|valid|invalid|pending|star-inserted)|cdk-.*focus.*|mat-focused|mat-mdc-form-field-focus.*)$/.test(
+          c,
+        )
+      );
+    });
+    if (cl.length) {
+      cl.forEach(function (c) {
+        r.push(["class", "css", t + "." + esc(c)]);
+      });
+      if (cl.length > 1)
+        r.push(["class", "css", t + "." + cl.map(esc).join(".")]);
+    }
+    var tx = "";
+    for (var i = 0; i < el.childNodes.length; i++)
+      if (el.childNodes[i].nodeType === 3) tx += el.childNodes[i].nodeValue;
+    tx = tx.replace(/\s+/g, " ").trim();
+    if (tx && tx.length < 80)
+      r.push([
+        "texto",
+        "xpath",
+        "//" + t + "[normalize-space()=" + xq(tx) + "]",
+      ]);
+    var cb2 = ab(el);
+    if ((cb2.match(/\[/g) || []).length > 1 && cnt("css", cb2) === 1)
+      r.push(["combinado", "css", cb2]);
+    var sp = sc(el);
+    if (sp) r.push(["escopo", "css", sp]);
+    r.push(["caminho", "css", path(el)]);
+    return r;
+  }
+  function cp(t, btn) {
+    function ok() {
+      btn.textContent = "✔";
+      setTimeout(function () {
+        btn.textContent = "Copiar";
+      }, 900);
+    }
+    function fb() {
+      var a = document.createElement("textarea");
+      a.value = t;
+      document.body.appendChild(a);
+      a.select();
+      try {
+        document.execCommand("copy");
+      } catch (e) {}
+      a.remove();
+      ok();
+    }
+    try {
+      navigator.clipboard.writeText(t).then(ok, fb);
+    } catch (e) {
+      fb();
+    }
+  }
+  function bar(title) {
+    pn.textContent = "";
+    var tp = E("div", "t"),
+      b = E("b", 0, title),
+      bp = E("button", 0, "▲ pai"),
+      bz = E("button", 0, on ? "Pausar" : "Retomar"),
+      bx = E("button", 0, "✕");
+    bp.onclick = function () {
+      if (
+        cur &&
+        cur.parentElement &&
+        cur.parentElement !== document.documentElement
+      )
+        show(cur.parentElement);
+    };
+    bz.onclick = function () {
+      on = !on;
+      bz.textContent = on ? "Pausar" : "Retomar";
+      if (!on) hl.style.display = "none";
+    };
+    bx.onclick = off;
+    tp.appendChild(b);
+    tp.appendChild(bp);
+    tp.appendChild(bz);
+    tp.appendChild(bx);
+    pn.appendChild(tp);
+  }
+  var lc = null,
+    uo = false,
+    fw = "sel",
+    FW = [
+      ["sel", "Seletores"],
+      ["cy", "Cypress"],
+      ["pw", "Playwright"],
+      ["jv", "Selenium Java"],
+      ["py", "Selenium Python"],
+    ],
+    NT = {
+      sel: "Verde = único na página · laranja 4× = 4 elementos têm esse seletor (passe o mouse para ver o índice). Nas abas de framework o índice já vem no código.",
+      cy: "Se o seletor repete, o .eq(n) já vem no código. XPath exige o plugin cypress-xpath.",
+      pw: "Se o seletor repete, o .nth(n) já vem no código.",
+      jv: "Se o seletor repete, o findElements(...).get(n) já vem no código.",
+      py: "Se o seletor repete, o find_elements(...)[n] já vem no código.",
+    };
+  function js(v) {
+    return "'" + v.replace(/\\/g, "\\\\").replace(/'/g, "\\'") + "'";
+  }
+  function nm(el) {
+    var t = el.tagName.toLowerCase(),
+      ty = (el.getAttribute("type") || "").toLowerCase(),
+      b =
+        el.id ||
+        el.getAttribute("name") ||
+        el.getAttribute("formcontrolname") ||
+        el.getAttribute("data-testid") ||
+        el.getAttribute("data-test") ||
+        el.getAttribute("data-cy") ||
+        el.getAttribute("aria-label") ||
+        el.getAttribute("placeholder") ||
+        (el.textContent || "").trim().slice(0, 25) ||
+        t;
+    b = b.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    var w = b
+        .replace(/[^A-Za-z0-9]+/g, " ")
+        .trim()
+        .split(" ")
+        .filter(Boolean),
+      s = w
+        .map(function (x, i) {
+          return (
+            (i ? x.charAt(0).toUpperCase() : x.charAt(0).toLowerCase()) +
+            x.slice(1)
+          );
+        })
+        .join("");
+    if (!s || /^\d/.test(s)) s = "el" + s;
+    var sf =
+      {
+        input:
+          ty === "checkbox"
+            ? "Checkbox"
+            : ty === "radio"
+              ? "Radio"
+              : ty === "submit" || ty === "button"
+                ? "Button"
+                : "Input",
+        button: "Button",
+        a: "Link",
+        select: "Select",
+        textarea: "Textarea",
+      }[t] || "";
+    if (sf && s.toLowerCase().slice(-sf.length) !== sf.toLowerCase()) s += sf;
+    return s;
+  }
+  function wrap(f, s, n, i, c) {
+    var k = s[1],
+      v = s[2],
+      M = c > 1 && i >= 0;
+    if (f === "sel") return v;
+    if (f === "cy")
+      return (
+        (k === "xpath" ? "cy.xpath(" + js(v) + ")" : "cy.get(" + js(v) + ")") +
+        (M ? ".eq(" + i + ")" : "") +
+        ";"
+      );
+    if (f === "pw")
+      return (
+        "this.page.locator(" +
+        js(k === "xpath" ? "xpath=" + v : v) +
+        ")" +
+        (M ? ".nth(" + i + ")" : "") +
+        ";"
+      );
+    if (f === "jv") {
+      var m = { css: "cssSelector", xpath: "xpath", id: "id", name: "name" };
+      return M
+        ? "driver.findElements(By." + m[k] + "(" + q(v) + ")).get(" + i + ");"
+        : "driver.findElement(By." + m[k] + "(" + q(v) + "));";
+    }
+    var m2 = { css: "CSS_SELECTOR", xpath: "XPATH", id: "ID", name: "NAME" };
+    return M
+      ? "driver.find_elements(By." + m2[k] + ", " + q(v) + ")[" + i + "]"
+      : "driver.find_element(By." + m2[k] + ", " + q(v) + ")";
+  }
+  function cbo(el) {
+    return (
+      el.closest("ng-select,mat-select,select") ||
+      el.closest('[role="combobox"],[aria-haspopup="listbox"]')
+    );
+  }
+  function opn(el) {
+    return el.closest('.ng-option,mat-option,option,[role="option"]');
+  }
+  function bs(el) {
+    var r = sels(el).filter(function (s) {
+      return s[1] === "css" && s[0] !== "caminho" && cnt("css", s[2]) === 1;
+    });
+    return r.length ? r[0][2] : path(el);
+  }
+  function lbl(el) {
+    var t = el.getAttribute("aria-label") || "",
+      l,
+      p = el,
+      n = 0;
+    if (!t && el.id) {
+      l = document.querySelector("label[for=" + q(el.id) + "]");
+      if (l) t = l.textContent;
+    }
+    while (!t && p && n < 4) {
+      var ls = p.querySelectorAll("label,mat-label");
+      if (ls.length === 1) t = ls[0].textContent;
+      p = p.parentElement;
+      n++;
+    }
+    if (!t) {
+      l = el.querySelector(".ng-placeholder,[placeholder]");
+      t = l
+        ? l.textContent || l.getAttribute("placeholder") || ""
+        : el.getAttribute("placeholder") || "";
+    }
+    return t.replace(/\s+/g, " ").trim().slice(0, 40);
+  }
+  function lk(x) {
+    var t = x.tagName.toLowerCase();
+    if (t === "select" || t === "option") return { n: 1 };
+    if (t === "ng-select" || x.closest("ng-select") || x.matches(".ng-option"))
+      return {
+        o: ".ng-dropdown-panel .ng-option",
+        x: function (s) {
+          return (
+            "//div[contains(@class,'ng-option')][contains(normalize-space(.)," +
+            xq(s) +
+            ")]"
+          );
+        },
+      };
+    if (t === "mat-select" || t === "mat-option")
+      return {
+        o: "mat-option",
+        x: function (s) {
+          return "//mat-option[contains(normalize-space(.)," + xq(s) + ")]";
+        },
+      };
+    return {
+      o: '[role="option"]',
+      x: function (s) {
+        return (
+          "//*[@role='option'][contains(normalize-space(.)," + xq(s) + ")]"
+        );
+      },
+    };
+  }
+  var F = {
+    cy: {
+      o: function (s) {
+        return "cy.get(" + js(s) + ").click();";
+      },
+      f: function (s) {
+        return "cy.get(" + js(s) + ").first().click();";
+      },
+      t: function (s, x, t) {
+        return "cy.contains(" + js(s) + ", " + js(t) + ").click();";
+      },
+      nt: function (s, t) {
+        return "cy.get(" + js(s) + ").select(" + js(t) + ");";
+      },
+      ni: function (s) {
+        return "cy.get(" + js(s) + ").select(0);";
+      },
+    },
+    pw: {
+      o: function (s) {
+        return "await this.page.locator(" + js(s) + ").click();";
+      },
+      f: function (s) {
+        return "await this.page.locator(" + js(s) + ").first().click();";
+      },
+      t: function (s, x, t) {
+        return (
+          "await this.page.locator(" +
+          js(s) +
+          ", { hasText: " +
+          js(t) +
+          " }).click();"
+        );
+      },
+      nt: function (s, t) {
+        return (
+          "await this.page.locator(" +
+          js(s) +
+          ").selectOption({ label: " +
+          js(t) +
+          " });"
+        );
+      },
+      ni: function (s) {
+        return (
+          "await this.page.locator(" + js(s) + ").selectOption({ index: 0 });"
+        );
+      },
+    },
+    jv: {
+      o: function (s) {
+        return "driver.findElement(By.cssSelector(" + q(s) + ")).click();";
+      },
+      f: function (s) {
+        return (
+          "driver.findElements(By.cssSelector(" + q(s) + ")).get(0).click();"
+        );
+      },
+      t: function (s, x, t) {
+        return "driver.findElement(By.xpath(" + q(x) + ")).click();";
+      },
+      nt: function (s, t) {
+        return (
+          "new Select(driver.findElement(By.cssSelector(" +
+          q(s) +
+          "))).selectByVisibleText(" +
+          q(t) +
+          ");"
+        );
+      },
+      ni: function (s) {
+        return (
+          "new Select(driver.findElement(By.cssSelector(" +
+          q(s) +
+          "))).selectByIndex(0);"
+        );
+      },
+    },
+    py: {
+      o: function (s) {
+        return "driver.find_element(By.CSS_SELECTOR, " + q(s) + ").click()";
+      },
+      f: function (s) {
+        return "driver.find_elements(By.CSS_SELECTOR, " + q(s) + ")[0].click()";
+      },
+      t: function (s, x, t) {
+        return "driver.find_element(By.XPATH, " + q(x) + ").click()";
+      },
+      nt: function (s, t) {
+        return (
+          "Select(driver.find_element(By.CSS_SELECTOR, " +
+          q(s) +
+          ")).select_by_visible_text(" +
+          q(t) +
+          ")"
+        );
+      },
+      ni: function (s) {
+        return (
+          "Select(driver.find_element(By.CSS_SELECTOR, " +
+          q(s) +
+          ")).select_by_index(0)"
+        );
+      },
+    },
+  };
+  function seq(f, cs, k, tx) {
+    var G = F[f],
+      r = [];
+    if (k.n) {
+      if (cs) {
+        r.push(["Selecionar por texto", [G.nt(cs, tx)]]);
+        r.push(["Selecionar pelo índice", [G.ni(cs)]]);
+      }
+      return r;
+    }
+    var op = cs ? [G.o(cs)] : [];
+    r.push(["Abrir e escolher a primeira", op.concat([G.f(k.o)])]);
+    r.push(["Abrir e escolher por texto", op.concat([G.t(k.o, k.x(tx), tx)])]);
+    return r;
+  }
+  function show(el) {
+    cur = el;
+    pos(sl, el);
+    bar("<" + el.tagName.toLowerCase() + ">" + (el.id ? " #" + el.id : ""));
+    var cr = sels(el)
+        .map(function (s, j) {
+          return [s, cnt(s[1], s[2]), ix(s[1], s[2], el), j];
+        })
+        .sort(function (a, b) {
+          return (a[1] === 1 ? 0 : 1) - (b[1] === 1 ? 0 : 1) || a[3] - b[3];
+        }),
+      kb = E("div", "k"),
+      lw = E("div"),
+      rw = E("div"),
+      nt = E("div", "m");
+    var co = cbo(el),
+      po = opn(el),
+      li = null,
+      tx = "Texto";
+    if (po) {
+      tx =
+        (po.textContent || "").replace(/\s+/g, " ").trim().slice(0, 60) ||
+        "Texto";
+      li = co ? (lc && lc.el === co ? lc : { el: co }) : lc;
+    } else if (co) {
+      lc = { el: co };
+      li = lc;
+    }
+    if (li && !li.cs) {
+      li.cs = bs(li.el);
+      li.lb = lbl(li.el);
+    }
+    var kk = li || po ? lk(li ? li.el : po) : null;
+    if (co && !po && kk) {
+      var o1 = kk.n
+        ? co.options && co.options[co.options.length > 1 ? 1 : 0]
+        : document.querySelector(kk.o);
+      if (o1)
+        tx =
+          (o1.text || o1.textContent || "")
+            .replace(/\s+/g, " ")
+            .trim()
+            .slice(0, 60) || tx;
+    }
+    function drawL() {
+      var bl;
+      lw.appendChild(
+        E(
+          "div",
+          "h",
+          "Campo: " +
+            ((li && li.lb) || "(sem rótulo)") +
+            (po ? " · opção: " + tx : ""),
+        ),
+      );
+      if (fw === "sel") {
+        bl = [["Campo (abrir)", [li ? li.cs : "(clique antes no campo)"]]];
+        if (!kk.n) {
+          bl.push(["Opções", [kk.o]]);
+          bl.push(["Opção por texto (XPath)", [kk.x(tx)]]);
+        }
+      } else bl = seq(fw, li ? li.cs : "", kk, tx);
+      bl.forEach(function (b) {
+        var h = E("div", "t"),
+          bb = E("button", 0, "Copiar"),
+          t = b[1].join("\n");
+        h.appendChild(E("b", 0, b[0]));
+        h.appendChild(bb);
+        bb.onclick = function () {
+          cp(t, bb);
+        };
+        lw.appendChild(h);
+        var d = E("div", "b", t);
+        d.onclick = bb.onclick;
+        lw.appendChild(d);
+      });
+    }
+    function draw() {
+      rw.textContent = "";
+      lw.textContent = "";
+      nt.textContent = NT[fw];
+      if (li || po) drawL();
+      cr.forEach(function (x) {
+        var s = x[0],
+          n = x[1],
+          i = x[2];
+        if (fw !== "jv" && fw !== "py" && s[1] !== "css" && s[1] !== "xpath")
+          return;
+        if (uo && n !== 1) return;
+        var txt = wrap(fw, s, "", i, n),
+          r = E("div", "r"),
+          cls = n === 1 ? "o" : n === 0 ? "x" : "w",
+          nb = E(
+            "div",
+            "n " + cls,
+            n === 0 ? "X" : n < 0 ? "?" : n > 1 ? n + "x" : String(n),
+          ),
+          cd = E("code", 0, txt),
+          cb = E("button", 0, "Copiar");
+        nb.title =
+          s[0] +
+          " · " +
+          s[1] +
+          " · " +
+          (n === 1
+            ? "Seletor único na página"
+            : n > 1
+              ? n +
+                " elementos na página; o seu é o de índice " +
+                i +
+                " (eq(" +
+                i +
+                "))"
+              : "não identificado, verificar dentro do iframe ou Shadow DOM");
+        cd.title = nb.title;
+        cd.onclick = function () {
+          cp(txt, cb);
+        };
+        cb.onclick = function () {
+          cp(txt, cb);
+        };
+        r.appendChild(nb);
+        r.appendChild(cd);
+        r.appendChild(cb);
+        rw.appendChild(r);
+      });
+      if (!rw.children.length)
+        rw.appendChild(
+          E(
+            "div",
+            "m",
+            "Nenhum seletor único para este elemento. Desative “Só únicos”.",
+          ),
+        );
+    }
+    FW.forEach(function (x) {
+      var b = E("button", x[0] === fw ? "a" : 0, x[1]);
+      b.t = 1;
+      b.onclick = function () {
+        fw = x[0];
+        [].forEach.call(kb.children, function (c) {
+          if (c.t) c.className = "";
+        });
+        b.className = "a";
+        draw();
+      };
+      kb.appendChild(b);
+    });
+    var ub = E("button", uo ? "a" : 0, "Só únicos");
+    ub.onclick = function () {
+      uo = !uo;
+      ub.className = uo ? "a" : "";
+      draw();
+    };
+    kb.appendChild(ub);
+    pn.appendChild(kb);
+    pn.appendChild(lw);
+    pn.appendChild(rw);
+    pn.appendChild(nt);
+    draw();
+  }
+  function inH(e) {
+    var p = e.composedPath ? e.composedPath() : [];
+    return p.indexOf(host) >= 0;
+  }
+  function mv(e) {
+    if (!on || inH(e)) return;
+    pos(hl, e.target);
+  }
+  function bl(e) {
+    if (!on || inH(e)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+  }
+  function ck(e) {
+    if (!on || inH(e)) return;
+    bl(e);
+    show(e.target);
+  }
+  function kd(e) {
+    if (e.key === "Escape") off();
+  }
+  function rs() {
+    pos(sl, cur);
+  }
+  var ev = [
+    ["mousemove", mv],
+    ["click", ck],
+    ["mousedown", bl],
+    ["mouseup", bl],
+    ["pointerdown", bl],
+    ["pointerup", bl],
+    ["dblclick", bl],
+    ["keydown", kd],
+    ["scroll", rs],
+  ];
+  ev.forEach(function (x) {
+    document.addEventListener(x[0], x[1], true);
+  });
+  function off() {
+    ev.forEach(function (x) {
+      document.removeEventListener(x[0], x[1], true);
+    });
+    host.remove();
+    hl.remove();
+    sl.remove();
+    delete window.__sp;
+  }
+  window.__sp = { off: off };
+  bar("Seletor");
+  pn.appendChild(E("div", "m", "Clique em um elemento da página. Esc fecha."));
 })();
